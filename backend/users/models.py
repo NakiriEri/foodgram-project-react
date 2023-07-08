@@ -1,0 +1,51 @@
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django import forms
+
+
+class User(AbstractUser):
+    ADMIN = 'admin'
+    USER = 'user'
+
+    ROLE_CHOICES = (
+        (ADMIN, 'admin'),
+        (USER, 'user'))
+
+    username = models.CharField(max_length=150, unique=True,)
+    email = models.EmailField(verbose_name='email',
+                              unique=True, max_length=254,)
+    role = models.CharField('Роли пользователей', default=USER,
+                            choices=ROLE_CHOICES, max_length=40)
+    confirmation_code = models.CharField(
+        max_length=150,
+    )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
+    class Meta:
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
+        ordering = ('username',)
+
+    def __str__(self):
+        return "{}".format(self.username)
+
+
+class UserFollowing(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='subscriber',
+        verbose_name="Подписчик",
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        User,
+        related_name='subscribing',
+        verbose_name="Автор",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подпивки'
+        ordering = ('-id',)
