@@ -91,6 +91,13 @@ class RecipesSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return ShopCart.objects.filter(recipe=obj, user=request.user).exists()
 
+class TagWrite(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        model = Tag
+        fields = ('id')
+
 
 class SmallRecipeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -100,93 +107,26 @@ class SmallRecipeSerializer(serializers.ModelSerializer):
 
 
 class CreateOrUpdateRecipes(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(many = True, queryset = Tag.objects.all())
     author = UserSerializer(read_only=True)
+    ingredients = IngredientForSerializer(many=True)
     image = Base64ImageField()
-    is_favorited = SerializerMethodField(read_only=True)
-    is_in_shopping_cart = SerializerMethodField(read_only=True)
+
 
     class Meta:
         model = Recipes
         fields = ('tags', 'author', 'ingredients',
-                  'name', 'image', 'text', 'cooking_time', "is_favorited", "is_in_shopping_cart")
+                  'name', 'image', 'text', 'cooking_time')
 
-    def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        return Favorite.objects.filter(recipe=obj, user=request.user).exists()
 
-    def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        return ShopCart.objects.filter(recipe=obj, user=request.user).exists()
-
-    def tagsValidate(self, tags):
-        if not tags:
-            raise serializers.ValidationError(
-                "У вас нет тега")
-        tags_save = []
-        if tags in tags_save:
-            raise serializers.ValidationError(
-                "Теги должны быть уникальны"
-            )
-        else:
-            tags_save.append(tags)
-
-    def ingridientsValidate(self, ingredients):
+    def create_ingredients(self, recipes, ingredients):
         for ingredient in ingredients:
-            ingredient_save = []
-            if not ingredients:
-                raise serializers.ValidationError(
-                    "Добавьте хоть один ингредиент"
-                )
-            elif ingredient in ingredient_save:
-                raise serializers.ValidationError(
-                    "У вас уже есть данный ингредиент"
-                )
-            ingredient_save.append(ingredient)
+            IngredientPass.object.creare(id=Ingredient.objects.get(ingredient("id")),
+                                         recipes=recipes,
+                                         amount=ingredient.get("amount"),
+                                         ingredient=ingredient.get("id")
+                                         )
 
-    def create_ingredients(self, ingredients, recipes):
-        for ingredient in ingredients:
-            ingredients = [IngredientPass(
-                ingredient=ingredient['id'],
-                recipe=recipes,
-                amount=ingredient['amount'])
-            ]
-            IngredientPass.object.create(ingredients)
-
-    def create(self, data):
-        tags = self.data.pop("tags")
-        ingredients = self.data.pop("ingredients")
-        image = self.data.pop("image")
-        recipes = Recipes.objects.create(**data)
-        for i in tags:
-            TagSerializer.object.creare(
-                recipes=recipes,
-                tags=i
-            )
-        self.create_ingredients(ingredients, recipes)
-        return recipes
-
-    def update(self, recipes, data):
-        if data.get("image") is True:
-            data.image = self.data.pop("image")
-
-        tags = self.data.pop("tags")
-        ingredients = self.data.pop("ingredients")
-        recipes.image = self.data.pop("image")
-        recipes.text = self.data.get("text")
-        recipes.time = self.data.get("cooking_time")
-
-        if tags:
-            recipes.tags.clear()
-            recipes.tags.set(tags)
-
-        if ingredients:
-            recipes.ingredients.clear()
-            self.create_ingredients(ingredients, recipes)
-
-        recipes.save()
-
-        return recipes
 
 
 class RegisterSerializer(UserCreateSerializer):

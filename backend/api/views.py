@@ -74,27 +74,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
 
-        user = request.user
-        if not ShopCart.object.filter(user=user).exist():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        CardDownload = IngredientPass.object.filter(
-            recipe__shopping_cart__user=request.user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement'
-        ).annotate(name='ingredient__name', measurment="ingredient__measurement", amount=Sum('amount'))
-        list = []
-        for i in CardDownload:
-            name = i["ingredient__name"]
-            measurement = i["ingredient__name__unit"]
-            amount = i["ingredient_amount"]
-            list.append(f"Имя: {name}:  Описание: {measurement} , Количество:{amount}")
-        content = "\n".join(list)
-        content_type = "text/plain,charset=utf8"
-        response = HttpResponse(content, content_type=content_type)
-        response['Content-Disposition'] = 'attachment; filename = "shopping_list.txt"'
-        return response
+        pass
 
 
 class UserViewSet(UserViewSet):
@@ -108,18 +88,7 @@ class UserViewSet(UserViewSet):
     )
 
     def subscribe(self, request, id):
-        author = get_object_or_404(User, pk=id)
-        serializer = UserFollowersSerializer(data={"user": request.user.id, 'author': id})
-        if request.method == 'POST':
-            serializer.is_valid(raise_exception=True)
-            UserFollowing.objects.create(user=request.user, author = author)
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-
-        if request.method == "DELETE":
-            get_object_or_404(
-                UserFollowing, user=request.user, author=author
-            ).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        pass
 
     @action(methods=['get'],
             detail=False,
@@ -130,11 +99,4 @@ class UserViewSet(UserViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def subscriptions(self, request):
-        user = request.user
-        queryset = UserFollowing.objects.filter(user=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = UserFollowersSerializer(
-            pages,
-            many=True,
-            context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        pass
