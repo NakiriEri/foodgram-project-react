@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Recipes, Ingredient, Tag, \
-    User, IngredientPass, TagPass, Favorite, ShopCart
+     IngredientPass, TagPass, Favorite, ShopCart
 from users.models import UserFollowing
 
 
@@ -33,16 +33,6 @@ class IngredientAdmin(admin.ModelAdmin):
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug',)
-
-
-class SubscribeAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'user',
-        'author'
-    )
-    list_display_links = ('id', 'user')
-    search_fields = ('user',)
 
 
 @admin.register(Favorite)

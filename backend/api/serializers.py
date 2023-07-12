@@ -1,12 +1,14 @@
 import re
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, ReadOnlyField
-from drf_extra_fields.fields import Base64ImageField
-from djoser.serializers import UserCreateSerializer
 
-from recipes.models import Tag, Recipes, Ingredient, IngredientPass, Favorite, ShopCart
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from djoser.serializers import UserCreateSerializer
+from drf_extra_fields.fields import Base64ImageField
+from recipes.models import (Favorite, Ingredient, IngredientPass, Recipes,
+                            ShopCart, Tag)
+from rest_framework import serializers
+from rest_framework.serializers import (ModelSerializer, ReadOnlyField,
+                                        SerializerMethodField)
 from users.models import UserFollowing
 
 User = get_user_model()

@@ -4,7 +4,6 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-
 SECRET_KEY = 'i@apc_hbk$z5ym6$4$bwk10*i8q1bq3o%a86!uyw-_@-hlu6wp'
 
 DEBUG = True
@@ -69,7 +68,6 @@ DATABASES = {
 }
 
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -96,7 +94,6 @@ REST_FRAMEWORK = {
 DJOSER = {
     'LOGIN_FIELD': 'email',
 }
-
 
 
 LANGUAGE_CODE = 'en-us'
