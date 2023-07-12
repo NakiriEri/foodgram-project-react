@@ -1,19 +1,19 @@
 from django.db import models
-from users.models import User
 
+from users.models import User
 
 class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название ингредиента',
         db_index=True,
         max_length=50,
-        blank = True
+        blank=True
     )
     measures = models.CharField(
         max_length=50,
         verbose_name='Единица измерения',
         help_text='Единица измерения',
-        blank = True,
+        blank=True,
     )
 
     def __str__(self):
@@ -35,7 +35,7 @@ class Tag(models.Model):
     color = models.CharField(
         max_length=7,
         verbose_name='Цвет',
-        unique=True,)
+        unique=True, )
 
     slug = models.SlugField(
         verbose_name='Идентификатор тега',
@@ -59,20 +59,20 @@ class Recipes(models.Model):
         User, on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Aвтор',
-        blank = True,
+        blank=True,
     )
     name = models.CharField(
         verbose_name='Название рецепта',
         db_index=True,
         max_length=50,
-        blank = True,)
+        blank=True, )
     image = models.ImageField(upload_to='recipes/images/',
-                                verbose_name='Картинка',
-                                blank=True,
-                                )
+                              verbose_name='Картинка',
+                              blank=True,
+                              )
     text = models.TextField(verbose_name='Текст рецепта',
-                                   blank=True,
-                                   )
+                            blank=True,
+                            )
     ingredients = models.ManyToManyField(
         'Ingredient',
         through='IngredientPass',
@@ -104,7 +104,7 @@ class IngredientPass(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
-        related_name = "recipe_pass"
+        related_name="recipe_pass"
     )
 
     amount = models.IntegerField(
@@ -112,11 +112,11 @@ class IngredientPass(models.Model):
         blank=True,
     )
     recipe = models.ForeignKey(Recipes,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-        related_name="recipe_pass"
+                               on_delete=models.CASCADE,
+                               verbose_name='Рецепт',
+                               related_name="recipe_pass"
 
-    )
+                               )
 
     def __str__(self):
         return f'{self.ingredient} => {self.recipe}'
@@ -149,20 +149,25 @@ class TagPass(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
                              verbose_name='Избранное')
-    recipe = models.ForeignKey(Recipes, on_delete=models.CASCADE,
-                               verbose_name='Рецепт',)
+    recipe = models.ForeignKey(Recipes,
+                               on_delete=models.CASCADE,
+                               verbose_name='Рецепт', )
 
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избраные'
 
+
 class ShopCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
                              verbose_name='Корзина',
                              related_name='shopping_cart')
-    recipe = models.ForeignKey(Recipes, on_delete=models.CASCADE,
+    recipe = models.ForeignKey(Recipes,
+                               on_delete=models.CASCADE,
                                verbose_name='Рецепт',
                                related_name='shopping_cart')
 

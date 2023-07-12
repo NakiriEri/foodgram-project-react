@@ -1,7 +1,6 @@
 import re
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ReadOnlyField
 from drf_extra_fields.fields import Base64ImageField
@@ -44,7 +43,8 @@ class UserSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, data):
         request = self.context.get('request')
         if request.user.is_authenticated:
-            return UserFollowing.objects.filter(user=request.user, author=data).exists()
+            return UserFollowing.objects.filter(user=request.user,
+                                                author=data).exists()
         return False
 
 
@@ -65,9 +65,12 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientForSerializer(serializers.ModelSerializer):
     "Сериалайзер для подключение интгредиентов к рецепту"
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(), source="ingredient.id")
-    name = serializers.ReadOnlyField(source="ingredient.name")
-    measurement_unit = serializers.ReadOnlyField(source="ingredient.measures")
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(), source="ingredient.id")
+    name = serializers.ReadOnlyField(
+        source="ingredient.name")
+    measurement_unit = serializers.ReadOnlyField(
+        source="ingredient.measures")
 
     class Meta:
         model = IngredientPass
@@ -79,27 +82,32 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = TagSerializer(read_only=True, many=True)
     author = UserSerializer(read_only=True)
     ingredients = IngredientForSerializer(many=True,
-                                          read_only=True, source="recipe_pass")
+                                          read_only=True,
+                                          source="recipe_pass")
     image = Base64ImageField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipes
-        fields = ("id", "tags", "author", "ingredients", "is_favorited", "is_in_shopping_cart", "name", "image", "text",
+        fields = ("id", "tags", "author", "ingredients",
+                  "is_favorited", "is_in_shopping_cart",
+                  "name", "image", "text",
                   "cooking_time")
         read_only_fields = ['is_favorited', "is_in_shopping_cart"]
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         if request.user.is_authenticated:
-            return Favorite.objects.filter(recipe=obj, user=request.user).exists()
+            return Favorite.objects.filter(recipe=obj,
+                                           user=request.user).exists()
         return False
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request.user.is_authenticated:
-            return ShopCart.objects.filter(recipe=obj, user=request.user).exists()
+            return ShopCart.objects.filter(recipe=obj,
+                                           user=request.user).exists()
         return False
 
 
@@ -123,9 +131,12 @@ class SmallRecipeSerializer(serializers.ModelSerializer):
 
 class CreateOrUpdateRecipes(serializers.ModelSerializer):
     "Сериалайзер для создания и обновления рецепта"
-    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    ingredients = IngredientForSerializer(many=True, write_only=True)
+    tags = serializers.PrimaryKeyRelatedField(many=True,
+                                              queryset=Tag.objects.all())
+    author = serializers.HiddenField\
+        (default=serializers.CurrentUserDefault())
+    ingredients = IngredientForSerializer\
+        (many=True, write_only=True)
     image = Base64ImageField()
 
     class Meta:
@@ -184,11 +195,14 @@ class UserFollowersSerializer(serializers.ModelSerializer):
         users = get_object_or_404(User, email=data.get('user'))
 
         if User.objects.filter(email=author).exist() != True:
-            raise serializers.ValidationError("Данного пользователя не удалось найти")
+            raise serializers.ValidationError(
+                "Данного пользователя не удалось найти")
         if author == users:
-            raise serializers.ValidationError("Вы пытаетесь подписаться на самого себя")
+            raise serializers.ValidationError(
+                "Вы пытаетесь подписаться на самого себя")
         if User.objects.filter(user=users, author=author).exist() == True:
-            raise serializers.ValidationError("Вы уже подписаны на данного пользователя")
+            raise serializers.ValidationError(
+                "Вы уже подписаны на данного пользователя")
 
         return data
 
