@@ -34,7 +34,6 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug',)
 
 
-@admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -43,7 +42,6 @@ class FavoriteAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(ShopCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -55,3 +53,5 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 admin.site.register(Recipes, RecipesAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
+admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(ShopCart, ShoppingCartAdmin)
