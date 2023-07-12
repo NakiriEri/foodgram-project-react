@@ -1,9 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django import forms
 
 
 class User(AbstractUser):
+    "Модели пользователя"
     ADMIN = 'admin'
     USER = 'user'
 
@@ -16,6 +16,18 @@ class User(AbstractUser):
                               unique=True, max_length=254,)
     role = models.CharField('Роли пользователей', default=USER,
                             choices=ROLE_CHOICES, max_length=40)
+    first_name = models.CharField(
+        'Имя',
+        max_length=150,
+        blank=False,
+        null=False,
+    )
+    last_name = models.CharField(
+        'Фамилия',
+        max_length=150,
+        blank=False,
+        null=False
+    )
     confirmation_code = models.CharField(
         max_length=150,
     )
@@ -23,8 +35,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
-        verbose_name = 'user'
-        verbose_name_plural = 'users'
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ('username',)
 
     def __str__(self):
@@ -32,6 +44,7 @@ class User(AbstractUser):
 
 
 class UserFollowing(models.Model):
+    "Модели подписки"
     user = models.ForeignKey(
         User,
         related_name='subscriber',
@@ -47,5 +60,5 @@ class UserFollowing(models.Model):
 
     class Meta:
         verbose_name = 'Подписка'
-        verbose_name_plural = 'Подпивки'
+        verbose_name_plural = 'Подпиcки'
         ordering = ('-id',)

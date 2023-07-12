@@ -35,7 +35,6 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug',)
 
 class SubscribeAdmin(admin.ModelAdmin):
-    """Кастомизация админ панели (управление подписками)."""
     list_display = (
         'id',
         'user',
