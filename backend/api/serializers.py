@@ -136,10 +136,10 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
     "Сериалайзер для создания и обновления рецепта"
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
-    author = serializers.HiddenField \
-        (default=serializers.CurrentUserDefault())
-    ingredients = IngredientForSerializer \
-        (many=True, write_only=True)
+    author = serializers.HiddenField(
+        default=serializers.CurrentUserDefault())
+    ingredients = IngredientForSerializer(
+        many=True, write_only=True)
     image = Base64ImageField()
 
     class Meta:
@@ -198,13 +198,13 @@ class UserFollowersSerializer(serializers.ModelSerializer):
         author = self.instance
         users = get_object_or_404(User, email=data.get('user'))
 
-        if User.objects.filter(email=author).exist() != True:
+        if User.objects.filter(email=author).exist() is not True:
             raise serializers.ValidationError(
                 "Данного пользователя не удалось найти")
         if author == users:
             raise serializers.ValidationError(
                 "Вы пытаетесь подписаться на самого себя")
-        if User.objects.filter(user=users, author=author).exist() == True:
+        if User.objects.filter(user=users, author=author).exist() is True:
             raise serializers.ValidationError(
                 "Вы уже подписаны на данного пользователя")
 
