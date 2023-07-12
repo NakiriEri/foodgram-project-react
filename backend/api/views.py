@@ -53,9 +53,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk):
 
         if request.method == 'POST':
-            return add_to(model=Favorite, user=request.user, pk=pk, request=request)
+            return add_to(model=Favorite, user=request.user,
+                          pk=pk, request=request)
         if request.method == "DELETE":
-            return delete_from(model=Favorite, user=request.user, pk=pk, request=request)
+            return delete_from(model=Favorite, user=request.user,
+                               pk=pk, request=request)
 
     @action(
         detail=True,
@@ -64,9 +66,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
-            return add_to(model=ShopCart, user=request.user, pk=pk, request=request)
+            return add_to(model=ShopCart, user=request.user,
+                          pk=pk, request=request)
         if request.method == "DELETE":
-            return delete_from(model=ShopCart, user=request.user, pk=pk, request=request)
+            return delete_from(model=ShopCart, user=request.user,
+                               pk=pk, request=request)
 
     @action(
         detail=False,
@@ -104,9 +108,11 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id):
         author = self.get_object()
         if request.method == "POST":
-            user_following, created = UserFollowing.objects.get_or_create(author=author, user=request.user)
+            user_following, created = UserFollowing.objects.get_or_create(
+                author=author, user=request.user)
             serializer = UserFollowersSerializer(user_following)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.data,
+                            status=status.HTTP_201_CREATED)
         else:
             UserFollowing.objects.filter(author=author, user=request.user).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -122,6 +128,8 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        user_following_query = UserFollowing.objects.filter(user=self.request.user)
-        serializer = UserFollowersSerializer(user_following_query, many=True)
+        user_following_query = UserFollowing.objects.filter(
+            user=self.request.user)
+        serializer = UserFollowersSerializer(
+            user_following_query, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

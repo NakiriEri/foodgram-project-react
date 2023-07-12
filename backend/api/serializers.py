@@ -7,8 +7,7 @@ from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, IngredientPass, Recipes,
                             ShopCart, Tag)
 from rest_framework import serializers
-from rest_framework.serializers import (ModelSerializer, ReadOnlyField,
-                                        SerializerMethodField)
+from rest_framework.serializers import (SerializerMethodField)
 from users.models import UserFollowing
 
 User = get_user_model()
@@ -52,6 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     "Сериалайзер для тегов"
+
     class Meta:
         model = Tag
         fields = ["id", 'name', "color", "slug"]
@@ -60,6 +60,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     "Сериалайзер для ингредиентов"
+
     class Meta:
         model = Ingredient
         fields = ["id", "name", "measures"]
@@ -135,9 +136,9 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
     "Сериалайзер для создания и обновления рецепта"
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
-    author = serializers.HiddenField\
+    author = serializers.HiddenField \
         (default=serializers.CurrentUserDefault())
-    ingredients = IngredientForSerializer\
+    ingredients = IngredientForSerializer \
         (many=True, write_only=True)
     image = Base64ImageField()
 
@@ -178,6 +179,7 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
 
 class RegisterSerializer(UserCreateSerializer):
     "Сериалайзер для регистрации"
+
     class Meta:
         model = User
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
