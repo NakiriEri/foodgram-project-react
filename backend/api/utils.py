@@ -12,7 +12,7 @@ def add_to(model, request, user, pk):
 
     recipe = get_object_or_404(Recipes, id=pk)
     instance = model.objects.create(user=user, recipe=recipe)
-    serializer = SmallRecipeSerializer(instance=recipe,
+    serializer = SmallRecipeSerializer(instance,
                                        context={'request': request})
 
     return Response(serializer.data, status=status.HTTP_201_CREATED)
