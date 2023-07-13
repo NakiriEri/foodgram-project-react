@@ -19,15 +19,13 @@ User = get_user_model()
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    "Класс для тегов"
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
     permission_classes = (AllowAny,)
 
 
-class IngridientViewSet(viewsets.ReadOnlyModelViewSet):
-    "Класс  для ингредиентов"
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -35,13 +33,12 @@ class IngridientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    "Класс для рецептов, списка покупок, и избранного."
     queryset = Recipes.objects.all()
     http_method_names = ['get', 'post', 'patch', 'create', 'delete']
     filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
-        if self.request.method == "GET":
+        if self.action == "list" or self.action == "retrieve":
             return RecipesSerializer
         else:
             return CreateOrUpdateRecipes
@@ -49,15 +46,13 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated])
+        permission_classes=[IsAuthenticated]
+    )
     def favorite(self, request, pk):
-
         if request.method == 'POST':
-            return add_to(model=Favorite, user=request.user,
-                          pk=pk, request=request)
-        if request.method == "DELETE":
-            return delete_from(model=Favorite, user=request.user,
-                               pk=pk, request=request)
+            return add_to(Favorite, request, request.user, pk)
+        elif request.method == "DELETE":
+            return delete_from(Favorite, request.user, pk, request)
 
     @action(
         detail=True,
@@ -66,11 +61,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
-            return add_to(model=ShopCart, user=request.user,
-                          pk=pk, request=request)
-        if request.method == "DELETE":
-            return delete_from(model=ShopCart, user=request.user,
-                               pk=pk, request=request)
+            return add_to(ShopCart, request, request.user, pk)
+        elif request.method == "DELETE":
+            return delete_from(ShopCart, request.user, pk, request)
 
     @action(
         detail=False,
@@ -78,7 +71,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         ingredients = Ingredient.objects.filter(
-            recipe_pass__recipe__shopping_cart__user_id=1
+            recipe_pass__recipe__shopping_cart__user=request.user
         ).annotate(
             amount=Sum("recipe_pass__amount")
         ).values_list(
@@ -97,7 +90,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
 
 class CustomUserViewSet(UserViewSet):
-    "Кастомный класс для пользователя"
     queryset = User.objects.all()
     http_method_names = ['get', 'post', 'delete']
 
@@ -106,7 +98,7 @@ class CustomUserViewSet(UserViewSet):
         methods=["POST", "DELETE"],
         permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, id):
+    def subscribe(self, request, pk):
         author = self.get_object()
         if request.method == "POST":
             user_following, created = UserFollowing.objects.get_or_create(
@@ -114,24 +106,28 @@ class CustomUserViewSet(UserViewSet):
             serializer = UserFollowersSerializer(user_following)
             return Response(data=serializer.data,
                             status=status.HTTP_201_CREATED)
-        else:
+        elif request.method == "DELETE":
             UserFollowing.objects.filter(
                 author=author, user=request.user).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(methods=['get'],
-            detail=False,
-            permission_classes=[IsAuthenticated]
-            )
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
     def me(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'],
-            permission_classes=[IsAuthenticated])
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated]
+    )
     def subscriptions(self, request):
         user_following_query = UserFollowing.objects.filter(
-            user=self.request.user)
+            user=request.user)
         serializer = UserFollowersSerializer(
             user_following_query, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
