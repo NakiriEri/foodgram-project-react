@@ -17,13 +17,13 @@ class Ingredient(models.Model):
         blank=True,
     )
 
+    class Meta:
+            verbose_name = 'Ингредиент'
+            verbose_name_plural = 'Ингредиенты'
+            ordering = ('name',)
+        
     def __str__(self):
         return self.name
-
-    class Meta:
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-        ordering = ('name',)
 
 
 class Tag(models.Model):
