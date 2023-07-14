@@ -164,33 +164,30 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = super().create(validated_data)
 
-        ingredient_passes = []
-        for ingredient in ingredients:
-            ingredient_passes.append(
-                IngredientPass(
-                    recipe=recipe,
-                    ingredient=ingredient.get("ingredient").get("id"),
-                    amount=ingredient.get("amount", 0)
-                )
+        ingredient_passes = [
+            IngredientPass(
+                recipe=recipe,
+                ingredient=ingredient.get("ingredient").get("id"),
+                amount=ingredient.get("amount", 0),
             )
-
+            for ingredient in ingredients
+        ]
         IngredientPass.objects.bulk_create(ingredient_passes)
 
         return recipe
 
-def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        recipe = super().update(instance, validated_data)
-
-        for ingredient in ingredients:
-            IngredientPass.objects.update_or_create(
-                recipe=recipe,
-                ingredient=ingredient.get("ingredient").get("id"),
-                defaults={
-                    "amount": ingredient.get("amount", 0)
-                }
-            )
-        return recipe
+    def update(self, instance, validated_data):
+            ingredients = validated_data.pop('ingredients')
+            recipe = super().update(instance, validated_data)
+            for ingredient in ingredients:
+                IngredientPass.objects.update_or_create(
+                    recipe=recipe,
+                    ingredient=ingredient.get("ingredient").get("id"),
+                    defaults={
+                        "amount": ingredient.get("amount", 0)
+                    }
+                )
+            return recipe
 
 
 class RegisterSerializer(UserCreateSerializer):
