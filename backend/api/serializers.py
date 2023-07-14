@@ -152,27 +152,32 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         """
         names = set()
         for ingredient in value:
-            name = ingredient.get('name')
-            if name in names:
+            ing_id = ingredient.get('id')
+            if ing_id in names:
                 raise serializers.ValidationError(
                     'Ингредиенты должны быть уникальными')
-            names.add(name)
+            names.add(ing_id)
         return value
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         recipe = super().create(validated_data)
 
+        ingredient_passes = []
         for ingredient in ingredients:
-            IngredientPass.objects.create(
-                recipe=recipe,
-                ingredient=ingredient.get("ingredient").get("id"),
-                amount=ingredient.get("amount", {}) or 0
+            ingredient_passes.append(
+                IngredientPass(
+                    recipe=recipe,
+                    ingredient=ingredient.get("ingredient").get("id"),
+                    amount=ingredient.get("amount", 0)
+                )
             )
+
+        IngredientPass.objects.bulk_create(ingredient_passes)
 
         return recipe
 
-    def update(self, instance, validated_data):
+def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         recipe = super().update(instance, validated_data)
 
