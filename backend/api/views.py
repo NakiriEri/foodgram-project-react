@@ -83,7 +83,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
             shopping_cart += f'{name.capitalize()} {amount} {measure},\n'
         response = HttpResponse(shopping_cart,
                                 content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename=Shopping list.txt'
+        response['Content-Disposition'] = (
+            'attachment; filename=Shopping list.txt'
+        )
         return response
 
 
@@ -103,7 +105,7 @@ class CustomUserViewSet(UserViewSet):
                 author=author, user=request.user)
             serializer = UserFollowersSerializer(user_following)
             return Response(data=serializer.data,
-                            status=status.HTTP_201_CREATED)
+                        status=status.HTTP_201_CREATED)
         UserFollowing.objects.filter(
                 author=author, user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

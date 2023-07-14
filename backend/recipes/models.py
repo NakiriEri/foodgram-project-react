@@ -127,7 +127,6 @@ class IngredientPass(models.Model):
                 name='unique_Ingredient_recipe')
         ]
 
-
     def __str__(self):
         return f'{self.ingredient} => {self.recipe}'
 
