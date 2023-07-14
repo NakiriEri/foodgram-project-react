@@ -187,7 +187,6 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         return recipe
 
 
-
 class RegisterSerializer(UserCreateSerializer):
     "Сериалайзер для регистрации"
 
@@ -210,13 +209,19 @@ class UserFollowersSerializer(serializers.ModelSerializer):
         users = get_object_or_404(User, email=data.get('user'))
 
         if not User.objects.filter(email=author).exists():
-            raise serializers.ValidationError("Данного пользователя не удалось найти")
+            raise serializers.ValidationError(
+                "Данного пользователя не удалось найти"
+            )
 
         if author == users:
-            raise serializers.ValidationError("Вы пытаетесь подписаться на самого себя")
+            raise serializers.ValidationError(
+                "Вы пытаетесь подписаться на самого себя"
+            )
 
         if User.objects.filter(user=users, author=author).exists():
-            raise serializers.ValidationError("Вы уже подписаны на данного пользователя")
+            raise serializers.ValidationError(
+                "Вы уже подписаны на данного пользователя"
+            )
 
         return data
 

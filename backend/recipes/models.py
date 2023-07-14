@@ -55,7 +55,6 @@ class Tag(models.Model):
         return self.name
 
 
-
 class Recipe(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
@@ -117,13 +116,15 @@ class IngredientPass(models.Model):
                                on_delete=models.CASCADE,
                                verbose_name='Рецепт',
                                related_name="recipe_pass"
-
                                )
+
     class Meta:
         verbose_name = 'Ингредиент и рецепт'
         verbose_name_plural = 'Ингредиенты и рецепты '
         constraints = [
-            models.UniqueConstraint(fields=['ingredient', 'recipe'], name='unique_Ingredient_recipe')
+            models.UniqueConstraint(
+                fields=['ingredient', 'recipe'],
+                name='unique_Ingredient_recipe')
         ]
 
 
@@ -149,7 +150,9 @@ class TagPass(models.Model):
         verbose_name = 'Тег и рецепт'
         verbose_name_plural = 'Теги и рецепты'
         constraints = [
-            models.UniqueConstraint(fields=['tag', 'recipe'], name='unique_tag_recipe')
+            models.UniqueConstraint(
+                fields=['tag', 'recipe'],
+                name='unique_tag_recipe')
         ]
 
     def __str__(self):
@@ -168,7 +171,9 @@ class Favorite(models.Model):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избраные'
         constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'], name='unique_user_recipe')
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_recipe')
         ]
 
 
@@ -186,5 +191,7 @@ class ShopCart(models.Model):
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
         constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'], name='unique_shopcart_user_recipe')
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopcart_user_recipe')
         ]

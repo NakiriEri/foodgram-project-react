@@ -8,10 +8,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from djoser.views import UserViewSet
-from recipes.models import (Favorite, Ingredient, IngredientPass, Recipe,
+from recipes.models import (Favorite, Ingredient, Recipe,
                             ShopCart, Tag)
 from .serializers import (CreateOrUpdateRecipes, IngredientSerializer,
-    RecipesSerializer, TagSerializer, UserFollowersSerializer, UserSerializer)
+                          RecipesSerializer, TagSerializer,
+                          UserFollowersSerializer, UserSerializer)
 from users.models import UserFollowing
 from .utils import add_to, delete_from
 
@@ -80,7 +81,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
         for name, measure, amount in ingredients:
             shopping_cart += f'{name.capitalize()} {amount} {measure},\n'
-        response = HttpResponse(shopping_cart, content_type='text/plain')
+        response = HttpResponse(shopping_cart,
+                                content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename=Shopping list.txt'
         return response
 
@@ -102,7 +104,6 @@ class CustomUserViewSet(UserViewSet):
             serializer = UserFollowersSerializer(user_following)
             return Response(data=serializer.data,
                             status=status.HTTP_201_CREATED)
-
         UserFollowing.objects.filter(
                 author=author, user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

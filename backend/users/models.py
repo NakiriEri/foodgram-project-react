@@ -63,5 +63,7 @@ class UserFollowing(models.Model):
         verbose_name_plural = 'Подпиcки'
         ordering = ('-id',)
         constraints = [
-            models.UniqueConstraint(fields=['user', 'author'], name='unique_user_author')
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_user_author')
         ]
