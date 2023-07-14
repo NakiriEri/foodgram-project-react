@@ -177,17 +177,17 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-            ingredients = validated_data.pop('ingredients')
-            recipe = super().update(instance, validated_data)
-            for ingredient in ingredients:
-                IngredientPass.objects.update_or_create(
-                    recipe=recipe,
-                    ingredient=ingredient.get("ingredient").get("id"),
-                    defaults={
-                        "amount": ingredient.get("amount", 0)
-                    }
-                )
-            return recipe
+        ingredients = validated_data.pop('ingredients')
+        recipe = super().update(instance, validated_data)
+        for ingredient in ingredients:
+            IngredientPass.objects.update_or_create(
+                recipe=recipe,
+                ingredient=ingredient.get("ingredient").get("id"),
+                defaults={
+                    "amount": ingredient.get("amount", 0)
+                }
+            )
+        return recipe
 
 
 class RegisterSerializer(UserCreateSerializer):
