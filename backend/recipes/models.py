@@ -21,7 +21,7 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
-        
+
     def __str__(self):
         return self.name
 
