@@ -105,9 +105,10 @@ class CustomUserViewSet(UserViewSet):
                 author=author, user=request.user)
             serializer = UserFollowersSerializer(user_following)
             return Response(data=serializer.data,
-                        status=status.HTTP_201_CREATED)
+                            status=status.HTTP_201_CREATED)
         UserFollowing.objects.filter(
-                author=author, user=request.user).delete()
+                author=author,
+                user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(

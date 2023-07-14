@@ -1,8 +1,9 @@
 from django.contrib import admin
 
 from .models import (Favorite, Ingredient,
-                    IngredientPass, Recipe,
-                    ShopCart, Tag, TagPass)
+                     IngredientPass, Recipe,
+                     ShopCart, Tag, TagPass
+                     )
 
 
 class TagPassAdmin(admin.TabularInline):
