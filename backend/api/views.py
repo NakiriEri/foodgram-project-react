@@ -2,18 +2,17 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from djoser.views import UserViewSet
-from recipes.models import (Favorite, Ingredient, Recipe,
-                            ShopCart, Tag)
+from recipes.models import Favorite, Ingredient, Recipe, ShopCart, Tag
+from users.models import UserFollowing
 from .serializers import (CreateOrUpdateRecipes, IngredientSerializer,
                           RecipesSerializer, TagSerializer,
                           UserFollowersSerializer, UserSerializer)
-from users.models import UserFollowing
 from .utils import add_to, delete_from
 
 User = get_user_model()
