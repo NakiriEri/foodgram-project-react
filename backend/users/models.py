@@ -40,7 +40,7 @@ class User(AbstractUser):
         ordering = ('username',)
 
     def __str__(self):
-        return "{}".format(self.username)
+        return f"{self.username}"
 
 
 class UserFollowing(models.Model):
@@ -62,3 +62,6 @@ class UserFollowing(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подпиcки'
         ordering = ('-id',)
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'author'], name='unique_user_author')
+        ]

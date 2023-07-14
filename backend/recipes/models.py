@@ -44,9 +44,6 @@ class Tag(models.Model):
         unique=True
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         """
         Добавляет русские название в админке.
@@ -54,8 +51,12 @@ class Tag(models.Model):
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
+    def __str__(self):
+        return self.name
 
-class Recipes(models.Model):
+
+
+class Recipe(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='recipes',
@@ -91,13 +92,13 @@ class Recipes(models.Model):
         blank=True,
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.name
 
 
 class IngredientPass(models.Model):
@@ -112,19 +113,22 @@ class IngredientPass(models.Model):
         verbose_name='Количество ингредиентов',
         blank=True,
     )
-    recipe = models.ForeignKey(Recipes,
+    recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE,
                                verbose_name='Рецепт',
                                related_name="recipe_pass"
 
                                )
-
-    def __str__(self):
-        return f'{self.ingredient} => {self.recipe}'
-
     class Meta:
         verbose_name = 'Ингредиент и рецепт'
         verbose_name_plural = 'Ингредиенты и рецепты '
+        constraints = [
+            models.UniqueConstraint(fields=['ingredient', 'recipe'], name='unique_Ingredient_recipe')
+        ]
+
+
+    def __str__(self):
+        return f'{self.ingredient} => {self.recipe}'
 
 
 class TagPass(models.Model):
@@ -136,30 +140,36 @@ class TagPass(models.Model):
         verbose_name='Тег'
     )
     recipe = models.ForeignKey(
-        Recipes,
+        Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт'
     )
 
-    def __str__(self):
-        return f'{self.tag} => {self.recipe}'
-
     class Meta:
         verbose_name = 'Тег и рецепт'
         verbose_name_plural = 'Теги и рецепты'
+        constraints = [
+            models.UniqueConstraint(fields=['tag', 'recipe'], name='unique_tag_recipe')
+        ]
+
+    def __str__(self):
+        return f'{self.tag} => {self.recipe}'
 
 
 class Favorite(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              verbose_name='Избранное')
-    recipe = models.ForeignKey(Recipes,
+    recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE,
                                verbose_name='Рецепт', )
 
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избраные'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'], name='unique_user_recipe')
+        ]
 
 
 class ShopCart(models.Model):
@@ -167,7 +177,7 @@ class ShopCart(models.Model):
                              on_delete=models.CASCADE,
                              verbose_name='Корзина',
                              related_name='shopping_cart')
-    recipe = models.ForeignKey(Recipes,
+    recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE,
                                verbose_name='Рецепт',
                                related_name='shopping_cart')
@@ -175,3 +185,6 @@ class ShopCart(models.Model):
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'], name='unique_shopcart_user_recipe')
+        ]

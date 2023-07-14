@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from .models import Recipes, Ingredient, Tag, \
-    IngredientPass, TagPass, Favorite, ShopCart
+from .models import (Favorite, Ingredient,
+                           IngredientPass, Recipe,
+                            ShopCart, Tag, TagPass)
 
 
 class TagPassAdmin(admin.TabularInline):
@@ -50,7 +51,7 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Recipes, RecipesAdmin)
+admin.site.register(Recipe, RecipesAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Favorite, FavoriteAdmin)

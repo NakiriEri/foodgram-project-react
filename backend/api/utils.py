@@ -1,7 +1,8 @@
-from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from recipes.models import Recipes
+from rest_framework.response import Response
+
+from recipes.models import Recipe
 from .serializers import SmallRecipeSerializer
 
 
@@ -10,7 +11,7 @@ def add_to(model, request, user, pk):
         return Response({'Невозможно добавить, уже существует данная единица'},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    recipe = get_object_or_404(Recipes, id=pk)
+    recipe = get_object_or_404(Recipe, id=pk)
     instance = model.objects.create(user=user, recipe=recipe)
     serializer = SmallRecipeSerializer(instance,
                                        context={'request': request})
@@ -19,7 +20,7 @@ def add_to(model, request, user, pk):
 
 
 def delete_from(model, user, pk, request):
-    recipe = get_object_or_404(Recipes, id=pk)
+    recipe = get_object_or_404(Recipe, id=pk)
 
     if model.objects.filter(user=user, recipe=recipe).exists():
         model.objects.filter(

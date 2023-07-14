@@ -2,12 +2,13 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Favorite, Ingredient, IngredientPass, Recipes,
-                            ShopCart, Tag)
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
+
+from djoser.serializers import UserCreateSerializer
+from recipes.models import (Favorite, Ingredient, IngredientPass, Recipe,
+                            ShopCart, Tag)
 from users.models import UserFollowing
 
 User = get_user_model()
@@ -29,6 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def validate_username(self, value):
+        value = value.lower()
         if value == 'me':
             raise serializers.ValidationError(
                 {
@@ -92,7 +94,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
 
     class Meta:
-        model = Recipes
+        model = Recipe
         fields = ("id", "tags", "author",
                   "ingredients", "is_favorited", "is_in_shopping_cart",
                   "name", "image", "text", "cooking_time")
@@ -124,7 +126,7 @@ class SmallRecipeSerializer(serializers.ModelSerializer):
     "Сериалайзер для отображения рецепта"
 
     class Meta:
-        model = Recipes
+        model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
         read_only_fields = ('id', 'name', 'image', 'cooking_time')
 
@@ -140,22 +142,32 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
-        model = Recipes
+        model = Recipe
         fields = ('tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
+    def validate_ingredients(self, value):
+        """
+        Валидация, что у ingredients не будет дублей.
+        """
+        names = set()
+        for ingredient in value:
+            name = ingredient.get('name')
+            if name in names:
+                raise serializers.ValidationError(
+                    'Ингредиенты должны быть уникальными')
+            names.add(name)
+        return value
+
     def create(self, validated_data):
-        print(validated_data)
         ingredients = validated_data.pop('ingredients')
         recipe = super().create(validated_data)
 
         for ingredient in ingredients:
-            IngredientPass.objects.update_or_create(
+            IngredientPass.objects.create(
                 recipe=recipe,
                 ingredient=ingredient.get("ingredient").get("id"),
-                defaults={
-                    "amount": ingredient.get("amount", 0)
-                }
+                amount=ingredient.get("amount", {}) or 0
             )
 
         return recipe
@@ -172,6 +184,8 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
                     "amount": ingredient.get("amount", 0)
                 }
             )
+        return recipe
+
 
 
 class RegisterSerializer(UserCreateSerializer):
@@ -195,15 +209,14 @@ class UserFollowersSerializer(serializers.ModelSerializer):
         author = self.instance
         users = get_object_or_404(User, email=data.get('user'))
 
-        if User.objects.filter(email=author).exist() is not True:
-            raise serializers.ValidationError(
-                "Данного пользователя не удалось найти")
+        if not User.objects.filter(email=author).exists():
+            raise serializers.ValidationError("Данного пользователя не удалось найти")
+
         if author == users:
-            raise serializers.ValidationError(
-                "Вы пытаетесь подписаться на самого себя")
-        if User.objects.filter(user=users, author=author).exist() is True:
-            raise serializers.ValidationError(
-                "Вы уже подписаны на данного пользователя")
+            raise serializers.ValidationError("Вы пытаетесь подписаться на самого себя")
+
+        if User.objects.filter(user=users, author=author).exists():
+            raise serializers.ValidationError("Вы уже подписаны на данного пользователя")
 
         return data
 
@@ -214,16 +227,16 @@ class UserFollowersSerializer(serializers.ModelSerializer):
 class FavoriteSerializer(serializers.ModelSerializer):
     "Сериалайзер для избранного"
     name = serializers.ReadOnlyField(
-        source='recipes.name',
+        source='recipe.name',
         read_only=True)
     image = serializers.ImageField(
-        source='recipes.image',
+        source='recipe.image',
         read_only=True)
     cooking_time = serializers.IntegerField(
-        source='recipes.cooking_time',
+        source='recipe.cooking_time',
         read_only=True)
     id = serializers.PrimaryKeyRelatedField(
-        source='recipes',
+        source='recipe',
         read_only=True)
 
     class Meta:
