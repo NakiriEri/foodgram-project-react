@@ -150,5 +150,3 @@ def subscriptions(self, request):
     serializer = FollowGetSerializer(
         pages, many=True, context={'request': request})
     return self.get_paginated_response(serializer.data)
-    )
-    return self.get_paginated_response(serializer.data)
