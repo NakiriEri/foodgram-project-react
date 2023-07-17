@@ -104,22 +104,21 @@ class CustomUserViewSet(UserViewSet):
         methods=["POST", "DELETE"],
         permission_classes=[IsAuthenticated]
     )
-  
-  def subscribe(self, request, id):
-      author = self.get_object()
-      if request.method == "POST":
-          user_following, created = UserFollowing.objects.get_or_create(
-            author=author, 
-            user=request.user
-          )
-          serializer = UserFollowersSerializer(user_following)
-          return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-      else:
-          UserFollowing.objects.filter(
-            author=author, 
-            user=request.user
-          ).delete()
-          return Response(status=status.HTTP_204_NO_CONTENT)
+    def subscribe(self, request, id):
+        author = self.get_object()
+        if request.method == "POST":
+            user_following, created = UserFollowing.objects.get_or_create(
+                author=author,
+                user=request.user
+            )
+            serializer = UserFollowersSerializer(user_following)
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            UserFollowing.objects.filter(
+                author=author,
+                user=request.user
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 @action(
     methods=['get'],
