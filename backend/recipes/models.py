@@ -7,7 +7,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название ингредиента',
         db_index=True,
-        max_length=50,
+        max_length=250,
         blank=True
     )
     measures = models.CharField(

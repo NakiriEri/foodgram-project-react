@@ -151,13 +151,13 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         """
         Валидация, что у ingredients не будет дублей.
         """
-        names = set()
+        id = set()
         for ingredient in value:
-            ing_id = ingredient.get('id')
-            if ing_id in names:
+            ing_id = get_object_or_404(Ingredient, id=ingredient['ingredient']['id'].pk)
+            if ing_id in id:
                 raise serializers.ValidationError(
                     'Ингредиенты должны быть уникальными')
-            names.add(ing_id)
+            id.add(ing_id)
         return value
 
     def create(self, validated_data):
@@ -168,7 +168,7 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
             IngredientPass(
                 recipe=recipe,
                 ingredient=ingredient.get("ingredient").get("id"),
-                amount=ingredient.get("amount", 0),
+                amount=ingredient.get("amount"),
             )
             for ingredient in ingredients
         ]
@@ -184,7 +184,7 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
                 recipe=recipe,
                 ingredient=ingredient.get("ingredient").get("id"),
                 defaults={
-                    "amount": ingredient.get("amount", 0)
+                    "amount": ingredient.get("amount")
                 }
             )
         return recipe
@@ -199,9 +199,7 @@ class RegisterSerializer(UserCreateSerializer):
 
 
 class UserFollowersSerializer(serializers.ModelSerializer):
-    "Сериалайзер для подписки"
-
-    recipes_count = SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = UserFollowing
@@ -211,25 +209,49 @@ class UserFollowersSerializer(serializers.ModelSerializer):
         author = self.instance
         users = get_object_or_404(User, email=data.get('user'))
 
-        if not User.objects.filter(email=author).exists():
-            raise serializers.ValidationError(
-                "Данного пользователя не удалось найти"
-            )
-
+        if User.objects.filter(email=author).exist() != True:
+            raise serializers.ValidationError("Данного пользователя не удалось найти")
         if author == users:
-            raise serializers.ValidationError(
-                "Вы пытаетесь подписаться на самого себя"
-            )
-
-        if User.objects.filter(user=users, author=author).exists():
-            raise serializers.ValidationError(
-                "Вы уже подписаны на данного пользователя"
-            )
+            raise serializers.ValidationError("Вы пытаетесь подписаться на самого себя")
+        if User.objects.filter(user=users, author=author).exist() == True:
+            raise serializers.ValidationError("Вы уже подписаны на данного пользователя")
 
         return data
 
     def get_recipes_count(self, user_following):
         return user_following.author.recipes.count()
+
+        serializer = SmallRecipeSerializer(recipes, read_only= True, many = True)
+        return serializer.data
+
+class FollowGetSerializer(serializers.ModelSerializer):
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            "recipes",
+            "recipes_count")
+
+    def get_recipes_count(self, user_following):
+        return  user_following.recipes.count()
+
+
+    def get_recipes(self, obj):
+        queryset = obj.recipes.all()
+        request = self.context.get('request')
+        take_limit = request.GET.get('recipes_limit')
+        if take_limit is not None:
+            take_limit = int(take_limit)
+            queryset = queryset[:take_limit]
+        return SmallRecipeSerializer(queryset, many=True).data
+
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -250,3 +272,5 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('id', 'name', 'image', 'cooking_time')
+
+
