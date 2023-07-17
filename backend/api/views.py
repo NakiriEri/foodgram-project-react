@@ -115,7 +115,7 @@ class CustomUserViewSet(UserViewSet):
             )
             serializer = UserFollowersSerializer(user_following)
             return Response(
-                data=serializer.data, 
+                data=serializer.data,
                 status=status.HTTP_201_CREATED
             )
         else:
@@ -131,7 +131,6 @@ class CustomUserViewSet(UserViewSet):
     detail=False,
     permission_classes=[IsAuthenticated]
 )
-
 def me(self, request):
     serializer = UserSerializer(request.user,
                                 context={'request': request}
@@ -145,7 +144,8 @@ def me(self, request):
     methods=['get'],
     permission_classes=[IsAuthenticated],
     pagination_class=LimitPageNumberPagination
-)
+      )
+
 def subscriptions(self, request):
     user = request.user
     queryset = User.objects.filter(subscribing__user=user)
