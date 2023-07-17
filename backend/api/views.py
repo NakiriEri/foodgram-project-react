@@ -125,7 +125,6 @@ class CustomUserViewSet(UserViewSet):
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-
     @action(
         methods=['get'],
         detail=False,
@@ -135,7 +134,6 @@ class CustomUserViewSet(UserViewSet):
         serializer = UserSerializer(
             request.user, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
     
     @action(
         detail=False,
