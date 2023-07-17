@@ -95,6 +95,7 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     http_method_names = ['get', 'post', 'delete']
     pagination_class = LimitPageNumberPagination
+    permission_classes = (AllowAny,)
 
     @action(
         detail=True,
