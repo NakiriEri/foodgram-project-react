@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,13 +11,15 @@ from .filters import RecipeFilter
 from .pagination import LimitPageNumberPagination
 from recipes.models import Favorite, Ingredient, Recipe, ShopCart, Tag
 from users.models import User, UserFollowing
-from .serializers import (CreateOrUpdateRecipes, 
-                              FollowGetSerializer, 
-                              IngredientSerializer,
-                              RecipesSerializer, 
-                              TagSerializer,
-                              UserFollowersSerializer, 
-                              UserSerializer)
+from .serializers import (
+    CreateOrUpdateRecipes,
+    FollowGetSerializer,
+    IngredientSerializer,
+    RecipesSerializer,
+    TagSerializer,
+    UserFollowersSerializer,
+    UserSerializer
+)
 from .utils import add_to, delete_from
 
 
@@ -42,6 +43,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitPageNumberPagination
     filterset_class = RecipeFilter
+  
     def get_serializer_class(self):
         if self.action == "list" or self.action == "retrieve":
             return RecipesSerializer
@@ -129,7 +131,7 @@ def me(self, request):
     serializer = UserSerializer(request.user,
                                 context={'request': request}
                                )
-    return Response(serializer.data, 
+    return Response(serializer.data,
                     status=status.HTTP_200_OK
                    )
 
