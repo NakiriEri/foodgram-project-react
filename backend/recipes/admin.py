@@ -17,6 +17,7 @@ class IngredientPassAdmin(admin.TabularInline):
 class RecipesAdmin(admin.ModelAdmin):
     list_display = ('name', 'author')
     list_filter = ('name', 'author', 'tags')
+    search_fields = ('author__username', 'name', 'tags__name')
     inlines = (
         TagPassAdmin,
         IngredientPassAdmin

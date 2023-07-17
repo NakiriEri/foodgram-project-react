@@ -161,10 +161,12 @@ class TagPass(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
-                             verbose_name='Избранное')
+                             verbose_name='Избранное',
+                             related_name = "favorite")
     recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE,
-                               verbose_name='Рецепт', )
+                               verbose_name='Рецепт',
+                               related_name = "favorite")
 
     class Meta:
         verbose_name = 'Избранное'
