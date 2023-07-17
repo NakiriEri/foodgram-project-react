@@ -126,27 +126,27 @@ class CustomUserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@action(
-    methods=['get'],
-    detail=False,
-    permission_classes=[IsAuthenticated]
-)
-def me(self, request):
-    serializer = UserSerializer(
-        request.user, context={'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@action(
-    detail=False,
-    methods=['get'],
-    permission_classes=[IsAuthenticated],
-    pagination_class=LimitPageNumberPagination
-)
-def subscriptions(self, request):
-    user = request.user
-    queryset = User.objects.filter(subscribing__user=user)
-    pages = self.paginate_queryset(queryset)
-    serializer = FollowGetSerializer(
-        pages, many=True, context={'request': request})
-    return self.get_paginated_response(serializer.data)
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
+    def me(self, request):
+        serializer = UserSerializer(
+            request.user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated],
+        pagination_class=LimitPageNumberPagination
+    )
+    def subscriptions(self, request):
+        user = request.user
+        queryset = User.objects.filter(subscribing__user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = FollowGetSerializer(
+            pages, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)
