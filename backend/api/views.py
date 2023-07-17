@@ -104,6 +104,7 @@ class CustomUserViewSet(UserViewSet):
         methods=["POST", "DELETE"],
         permission_classes=[IsAuthenticated]
     )
+  
 def subscribe(self, request, id):
     author = self.get_object()
     if request.method == "POST":
