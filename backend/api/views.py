@@ -43,7 +43,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitPageNumberPagination
     filterset_class = RecipeFilter
-  
+
     def get_serializer_class(self):
         if self.action == "list" or self.action == "retrieve":
             return RecipesSerializer
@@ -114,7 +114,10 @@ class CustomUserViewSet(UserViewSet):
                 user=request.user
             )
             serializer = UserFollowersSerializer(user_following)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                data=serializer.data, 
+                status=status.HTTP_201_CREATED
+            )
         else:
             UserFollowing.objects.filter(
                 author=author,
@@ -122,11 +125,13 @@ class CustomUserViewSet(UserViewSet):
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 @action(
     methods=['get'],
     detail=False,
     permission_classes=[IsAuthenticated]
 )
+
 def me(self, request):
     serializer = UserSerializer(request.user,
                                 context={'request': request}
