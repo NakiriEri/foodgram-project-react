@@ -153,7 +153,9 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         """
         id = set()
         for ingredient in value:
-            ing_id = get_object_or_404(Ingredient, id=ingredient['ingredient']['id'].pk)
+            ing_id = get_object_or_404(
+                Ingredient, 
+                id=ingredient['ingredient']['id'].pk)
             if ing_id in id:
                 raise serializers.ValidationError(
                     'Ингредиенты должны быть уникальными')
