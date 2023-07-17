@@ -154,7 +154,7 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         id = set()
         for ingredient in value:
             ing_id = get_object_or_404(
-                Ingredient, 
+                Ingredient,
                 id=ingredient['ingredient']['id'].pk)
             if ing_id in id:
                 raise serializers.ValidationError(
@@ -193,7 +193,7 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
 
 
 class RegisterSerializer(UserCreateSerializer):
-    "Сериалайзер для регистрации"
+    """Сериалайзер для регистрации"""
 
     class Meta:
         model = User
@@ -211,20 +211,24 @@ class UserFollowersSerializer(serializers.ModelSerializer):
         author = self.instance
         users = get_object_or_404(User, email=data.get('user'))
 
-        if User.objects.filter(email=author).exist() != True:
-            raise serializers.ValidationError("Данного пользователя не удалось найти")
+        if not User.objects.filter(email=author).exists():
+            raise serializers.ValidationError(
+                "Данного пользователя не удалось найти"
+            )
         if author == users:
-            raise serializers.ValidationError("Вы пытаетесь подписаться на самого себя")
-        if User.objects.filter(user=users, author=author).exist() == True:
-            raise serializers.ValidationError("Вы уже подписаны на данного пользователя")
+            raise serializers.ValidationError(
+                "Вы пытаетесь подписаться на самого себя"
+            )
+        if User.objects.filter(user=users, author=author).exists():
+            raise serializers.ValidationError(
+                "Вы уже подписаны на данного пользователя"
+            )
 
         return data
 
     def get_recipes_count(self, user_following):
         return user_following.author.recipes.count()
 
-        serializer = SmallRecipeSerializer(recipes, read_only= True, many = True)
-        return serializer.data
 
 class FollowGetSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
@@ -239,11 +243,11 @@ class FollowGetSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             "recipes",
-            "recipes_count")
+            "recipes_count"
+        )
 
     def get_recipes_count(self, user_following):
-        return  user_following.recipes.count()
-
+        return user_following.recipes.count()
 
     def get_recipes(self, obj):
         queryset = obj.recipes.all()
@@ -255,9 +259,8 @@ class FollowGetSerializer(serializers.ModelSerializer):
         return SmallRecipeSerializer(queryset, many=True).data
 
 
-
 class FavoriteSerializer(serializers.ModelSerializer):
-    "Сериалайзер для избранного"
+    """Сериалайзер для избранного"""
     name = serializers.ReadOnlyField(
         source='recipe.name',
         read_only=True)
@@ -274,5 +277,4 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('id', 'name', 'image', 'cooking_time')
-
-
+        
