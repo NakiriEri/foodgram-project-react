@@ -11,7 +11,7 @@ def add_to(model, request, user, pk):
         return Response({'Невозможно добавить, уже существует данная единица'},
                         status=status.HTTP_400_BAD_REQUEST)
     recipe = get_object_or_404(Recipe, id=pk)
-    instance = model.objects.create(user=user, recipe=recipe)
+    model.objects.create(user=user, recipe=recipe)
     serializer = SmallRecipeSerializer(recipe)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
