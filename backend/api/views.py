@@ -12,12 +12,14 @@ from .filters import RecipeFilter
 from .pagination import LimitPageNumberPagination
 from recipes.models import Favorite, Ingredient, Recipe, ShopCart, Tag
 from users.models import User, UserFollowing
-from .serializers import (CreateOrUpdateRecipes, FollowGetSerializer, IngredientSerializer,
-                          RecipesSerializer, TagSerializer,
-                          UserFollowersSerializer, UserSerializer)
+from .serializers import (CreateOrUpdateRecipes, 
+                              FollowGetSerializer, 
+                              IngredientSerializer,
+                              RecipesSerializer, 
+                              TagSerializer,
+                              UserFollowersSerializer, 
+                              UserSerializer)
 from .utils import add_to, delete_from
-
-User = get_user_model()
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -102,40 +104,48 @@ class CustomUserViewSet(UserViewSet):
         methods=["POST", "DELETE"],
         permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, id):
-        author = self.get_object()
-        if request.method == "POST":
-            user_following, created = UserFollowing.objects.get_or_create(author=author, user=request.user)
-            serializer = UserFollowersSerializer(user_following)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            UserFollowing.objects.filter(author=author, user=request.user).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+def subscribe(self, request, id):
+    author = self.get_object()
+    if request.method == "POST":
+        user_following, created = UserFollowing.objects.get_or_create(
+          author=author, 
+          user=request.user
+        )
+        serializer = UserFollowersSerializer(user_following)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        UserFollowing.objects.filter(
+          author=author, 
+          user=request.user
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(
-        methods=['get'],
-        detail=False,
-        permission_classes=[IsAuthenticated]
+@action(
+    methods=['get'],
+    detail=False,
+    permission_classes=[IsAuthenticated]
+)
+def me(self, request):
+    serializer = UserSerializer(request.user,
+                                context={'request': request}
+                               )
+    return Response(serializer.data, 
+                    status=status.HTTP_200_OK
+                   )
+
+@action(
+    detail=False,
+    methods=['get'],
+    permission_classes=[IsAuthenticated],
+    pagination_class=LimitPageNumberPagination
+)
+def subscriptions(self, request):
+    user = request.user
+    queryset = User.objects.filter(subscribing__user=user)
+    pages = self.paginate_queryset(queryset)
+    serializer = FollowGetSerializer(
+        pages,
+        many=True,
+        context={'request': request}
     )
-
-    def me(self, request):
-      serializer = UserSerializer(request.user,
-              context={'request': request,})
-      return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(
-        detail=False,
-        methods=['get'],
-        permission_classes=[IsAuthenticated],
-        pagination_class=LimitPageNumberPagination
-    )
-
-
-    def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(subscribing__user=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = FollowGetSerializer(pages,
-                                         many=True,
-                                         context={'request': request})
-        return self.get_paginated_response(serializer.data)
+    return self.get_paginated_response(serializer.data)
