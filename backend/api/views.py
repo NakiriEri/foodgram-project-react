@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from .filters import RecipeFilter
 from .pagination import LimitPageNumberPagination
+from .permissions import IsAuthorOrReadOnly
 from recipes.models import Favorite, Ingredient, Recipe, ShopCart, Tag
 from users.models import User, UserFollowing
 from .serializers import (
@@ -43,7 +44,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitPageNumberPagination
     filterset_class = RecipeFilter
-
+    permission_classes = (IsAuthorOrReadOnly,)
     def get_serializer_class(self):
         if self.action == "list" or self.action == "retrieve":
             return RecipesSerializer

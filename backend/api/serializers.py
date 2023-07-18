@@ -151,15 +151,13 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         """
         Валидация, что у ingredients не будет дублей.
         """
-        id = set()
-        for ingredient in value:
-            ing_id = get_object_or_404(
-                Ingredient,
-                id=ingredient['ingredient']['id'].pk)
-            if ing_id in id:
+        ingredients = self.initial_data.get('ingredients')
+        ing_list = set()
+        for ingredient in ingredients:
+            if ingredient['id'] in ing_list:
                 raise serializers.ValidationError(
                     'Ингредиенты должны быть уникальными')
-            id.add(ing_id)
+            ing_list.add(ingredient['id'])
         return value
 
     def create(self, validated_data):
