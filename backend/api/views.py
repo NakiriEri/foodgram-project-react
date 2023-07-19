@@ -45,7 +45,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     pagination_class = LimitPageNumberPagination
     filterset_class = RecipeFilter
     permission_classes = (IsAuthorOrReadOnly,)
-    
+
     def get_serializer_class(self):
         if self.action == "list" or self.action == "retrieve":
             return RecipesSerializer
@@ -150,3 +150,4 @@ class CustomUserViewSet(UserViewSet):
         serializer = FollowGetSerializer(
             pages, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
+    
