@@ -44,12 +44,12 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Недоспустимые символы')
         return value
 
-    def get_is_subscribed(self, data):
-        request = self.context.get('request')
-        if request.user.is_authenticated:
-            return UserFollowing.objects.filter(user=request.user,
-                                                author=data).exists()
-        False
+    def get_is_subscribed(self, data): 
+        request = self.context.get('request') 
+        if request.user.is_authenticated: 
+            return UserFollowing.objects.filter(user=request.user, 
+                                                author=data).exists() 
+        return False 
 
 
 class TagSerializer(serializers.ModelSerializer):
