@@ -61,7 +61,7 @@ jobs:
             pwd
             sudo docker-compose stop
             sudo docker-compose rm web
-            cd infra/
+            cd /home/${{secrets.USER}}/foodgram-project-react/infra/
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
