@@ -144,7 +144,7 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id','tags', 'author', 'ingredients',
+        fields = ('id','tags', 'author', 'ingredients', 
                   'name', 'image', 'text', 'cooking_time')
 
     def validate_ingredients(self, value):
@@ -155,7 +155,6 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
                 raise serializers.ValidationError("Ингредиент уже добавлен")
             existing_ingredients.append(ingredient['ingredient']['id'])
         return value
-
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
@@ -190,6 +189,7 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
         request = self.context.get('request')
         context = {'request': request}
         return RecipesSerializer(instance, context=context).data
+
 
 class RegisterSerializer(UserCreateSerializer):
     """Сериалайзер для регистрации"""
