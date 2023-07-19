@@ -139,26 +139,23 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault())
     ingredients = IngredientForSerializer(
-        many=True, write_only=True)
+        many=True)
     image = Base64ImageField()
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author', 'ingredients',
+        fields = ('id','tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
     def validate_ingredients(self, value):
-        """
-        Валидация, что у ingredients не будет дублей.
-        """
-        ingredients = self.initial_data.get('ingredients')
-        ing_list = set()
-        for ingredient in ingredients:
-            if ingredient['id'] in ing_list:
-                raise serializers.ValidationError(
-                    'Ингредиенты должны быть уникальными')
-            ing_list.add(ingredient['id'])
+        """Валидация ингредиентов по уникальности"""
+        existing_ingredients = []
+        for ingredient in value:
+            if ingredient['ingredient']['id'] in existing_ingredients:
+                raise serializers.ValidationError("Ингредиент уже добавлен")
+            existing_ingredients.append(ingredient['ingredient']['id'])
         return value
+
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
@@ -189,6 +186,10 @@ class CreateOrUpdateRecipes(serializers.ModelSerializer):
             )
         return recipe
 
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return RecipesSerializer(instance, context=context).data
 
 class RegisterSerializer(UserCreateSerializer):
     """Сериалайзер для регистрации"""
