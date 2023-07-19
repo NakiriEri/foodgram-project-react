@@ -58,10 +58,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            pwd
-            sudo docker-compose stop
-            sudo docker-compose rm web
             cd /home/${{secrets.USER}}/foodgram-project-react/infra/
+            sudo docker-compose stop
+            sudo docker-compose rm backend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
